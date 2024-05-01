@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Mert.DialogueSystem.Windows
 {
+    using Utilities;
     public class DialogueSystemEditorWindow : EditorWindow
     {
         [MenuItem("Window/DialogueSystem/Dialogue Graph")]
@@ -18,18 +19,18 @@ namespace Mert.DialogueSystem.Windows
             AddStyles();
         }
 
+        #region Elements Insertion
         private void AddGraphView()
         {
-            DialogueSystemGraphView graphView = new DialogueSystemGraphView();
+            DialogueSystemGraphView graphView = new DialogueSystemGraphView(this);
             graphView.StretchToParentSize();
             rootVisualElement.Add(graphView);
         }
 
         private void AddStyles()
         {
-            StyleSheet styleSheet = EditorGUIUtility.Load("DialogueSystem/DialogueSystemVariables.uss") as StyleSheet;
-
-            rootVisualElement.styleSheets.Add(styleSheet);
+            rootVisualElement.AddStyleSheets("DialogueSystem/DialogueSystemVariables.uss");
         }
+        #endregion
     }
 }

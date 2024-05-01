@@ -4,6 +4,7 @@ using UnityEditor.Experimental.GraphView;
 namespace Mert.DialogueSystem.Elements
 {
     using Enumerations;
+    using Utilities;
 
     public class SingleChoiceNode : DialogueSystemNode
     {
@@ -22,9 +23,7 @@ namespace Mert.DialogueSystem.Elements
 
             foreach (string choice in Choices)
             {
-                Port choicePort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
-
-                choicePort.portName = choice;
+                Port choicePort = this.CreatePort(choice);
 
                 outputContainer.Add(choicePort);
             }
