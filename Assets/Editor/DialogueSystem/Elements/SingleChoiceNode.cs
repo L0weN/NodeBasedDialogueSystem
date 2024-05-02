@@ -5,12 +5,13 @@ namespace Mert.DialogueSystem.Elements
 {
     using Enumerations;
     using Utilities;
+    using Windows;
 
     public class SingleChoiceNode : DialogueSystemNode
     {
-        public override void Initialize(Vector2 position)
+        public override void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(dialogueSystemGraphView, position);
 
             DialogueType = DialogueType.SingleChoice;
 

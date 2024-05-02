@@ -66,7 +66,7 @@ namespace Mert.DialogueSystem.Windows
                     }
                 case Group _:
                     {
-                        Group group = graphView.CreateGroup("DialogueGroup", localMousePosition);
+                        DialogueSystemGroup group = graphView.CreateGroup("DialogueGroup", localMousePosition);
                         graphView.AddElement(group);
                         return true;
                     }

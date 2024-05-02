@@ -6,11 +6,12 @@ namespace Mert.DialogueSystem.Elements
 {
     using Enumerations;
     using Utilities;
+    using Windows;
     public class MultipleChoiceNode : DialogueSystemNode
     {
-        public override void Initialize(Vector2 position)
+        public override void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(dialogueSystemGraphView, position);
 
             DialogueType = DialogueType.MultipleChoice;
 
@@ -26,7 +27,6 @@ namespace Mert.DialogueSystem.Elements
                 Port choicePort = CreateChoicePort("New Choice");
 
                 Choices.Add("New Choice");
-                Debug.Log("Choice Added");
                 
                 outputContainer.Add(choicePort);
             });
@@ -38,7 +38,6 @@ namespace Mert.DialogueSystem.Elements
             foreach (string choice in Choices)
             {
                 Port choicePort = CreateChoicePort(choice);
-                Debug.Log("Choice Port Created");
                 outputContainer.Add(choicePort);
             }
 

@@ -7,6 +7,7 @@ namespace Mert.DialogueSystem.Elements
 {
     using Enumerations;
     using Utilities;
+    using Windows;
 
     public class DialogueSystemNode : Node
     {
@@ -14,12 +15,22 @@ namespace Mert.DialogueSystem.Elements
         public List<string> Choices { get; set; }
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
+        public DialogueSystemGroup Group { get; set; }
 
-        public virtual void Initialize(Vector2 position)
+        private DialogueSystemGraphView graphView;
+
+        private Color defaultBackgroundcolor;
+
+        public virtual void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
         {
             DialogueName = "DialogueName";
             Choices = new List<string>();
             Text = "Dialogue text.";
+
+            graphView = dialogueSystemGraphView;
+            defaultBackgroundcolor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
+
+
             SetPosition(new Rect(position, Vector2.zero));
 
             mainContainer.AddToClassList("ds-node__main-container");
@@ -28,7 +39,28 @@ namespace Mert.DialogueSystem.Elements
 
         public virtual void Draw()
         {
-            TextField dialogueNameTextField = DialogueSystemElementUtility.CreateTextField(DialogueName);
+            TextField dialogueNameTextField = DialogueSystemElementUtility.CreateTextField(DialogueName, callback =>
+            {
+                if (Group == null)
+                {
+                    graphView.RemoveUngroupedNode(this);
+
+                    DialogueName = callback.newValue;
+
+                    graphView.AddUngroupedNode(this);
+
+                    return;
+                }
+
+                DialogueSystemGroup currentGroup = Group;
+
+                graphView.RemoveGroupedNode(this, Group);
+
+                DialogueName = callback.newValue;
+
+                graphView.AddGroupedNode(this, currentGroup);
+
+            });
 
             dialogueNameTextField.AddClasses(
                 "ds-node__text-field",
@@ -60,6 +92,16 @@ namespace Mert.DialogueSystem.Elements
             customDataContainer.Add(textFoldout);
 
             extensionContainer.Add(customDataContainer);
+        }
+
+        public void SetErrorStyle(Color color)
+        {
+            mainContainer.style.backgroundColor = color;
+        }
+
+        public void ResetStyle()
+        {
+            mainContainer.style.backgroundColor = defaultBackgroundcolor;
         }
     }
 }
