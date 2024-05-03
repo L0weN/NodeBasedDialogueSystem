@@ -36,16 +36,19 @@ namespace Mert.DialogueSystem.Elements
             mainContainer.AddToClassList("ds-node__main-container");
             extensionContainer.AddToClassList("ds-node__extension-container");
         }
-
         public virtual void Draw()
         {
-            TextField dialogueNameTextField = DialogueSystemElementUtility.CreateTextField(DialogueName, callback =>
+            TextField dialogueNameTextField = DialogueSystemElementUtility.CreateTextField(DialogueName, null, callback =>
             {
+                TextField target = callback.target as TextField;
+
+                target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+
                 if (Group == null)
                 {
                     graphView.RemoveUngroupedNode(this);
 
-                    DialogueName = callback.newValue;
+                    DialogueName = target.value;
 
                     graphView.AddUngroupedNode(this);
 
@@ -56,7 +59,7 @@ namespace Mert.DialogueSystem.Elements
 
                 graphView.RemoveGroupedNode(this, Group);
 
-                DialogueName = callback.newValue;
+                DialogueName = target.value;
 
                 graphView.AddGroupedNode(this, currentGroup);
 
@@ -94,6 +97,42 @@ namespace Mert.DialogueSystem.Elements
             extensionContainer.Add(customDataContainer);
         }
 
+        #region Overrided Methods
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            evt.menu.AppendAction("Disconnect Input Ports", action =>
+            {
+                DisconnectPorts(inputContainer);
+            });
+
+            evt.menu.AppendAction("Disconnect Output Ports", action =>
+            {
+                DisconnectPorts(outputContainer);
+            });
+
+            base.BuildContextualMenu(evt);
+        }
+        #endregion
+
+        #region Utility Methods
+        public void DisconnectAllPorts()
+        {
+            DisconnectPorts(inputContainer);
+            DisconnectPorts(outputContainer);
+        }
+
+        private void DisconnectPorts(VisualElement container)
+        {
+            foreach (Port port in container.Children())
+            {
+                if (!port.connected)
+                {
+                    continue;
+                }
+                graphView.DeleteElements(port.connections);
+            }
+        }
+
         public void SetErrorStyle(Color color)
         {
             mainContainer.style.backgroundColor = color;
@@ -103,5 +142,6 @@ namespace Mert.DialogueSystem.Elements
         {
             mainContainer.style.backgroundColor = defaultBackgroundcolor;
         }
+        #endregion
     }
 }

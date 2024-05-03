@@ -21,6 +21,30 @@ namespace Mert.DialogueSystem.Windows
         private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
         private SerializableDictionary<Group, SerializableDictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
 
+        private int repeatedNamesAmount = 0;
+
+        public int RepeatedNamesAmout
+        {
+            get
+            {
+                return repeatedNamesAmount;
+            }
+            set
+            {
+                repeatedNamesAmount = value;
+
+                if (repeatedNamesAmount == 0)
+                {
+                    editorWindow.EnableSaving();
+                }
+
+                if (repeatedNamesAmount == 1)
+                {
+                    editorWindow.DisableSaving();
+                }
+            }
+        }
+
         public DialogueSystemGraphView(DialogueSystemEditorWindow dialogueSystemEditorWindow)
         {
             editorWindow = dialogueSystemEditorWindow;
@@ -74,7 +98,7 @@ namespace Mert.DialogueSystem.Windows
         private IManipulator CreateGroupContextualMenu()
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction("Add Group", menuActionEvent => AddElement(CreateGroup("DialogueGroup", GetLocalMousePosition(menuActionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction("Add Group", menuActionEvent => CreateGroup("DialogueGroup", GetLocalMousePosition(menuActionEvent.eventInfo.localMousePosition)))
                 );
 
             return contextualMenuManipulator;
@@ -89,7 +113,7 @@ namespace Mert.DialogueSystem.Windows
         }
         #endregion
         
-        #region Element Creation
+        #region Elements Creation
         public DialogueSystemNode CreateNode(DialogueType dialogueType, Vector2 position)
         {
             Type nodeType = Type.GetType($"Mert.DialogueSystem.Elements.{dialogueType}Node");
@@ -110,6 +134,20 @@ namespace Mert.DialogueSystem.Windows
 
             AddGroup(group);
 
+            AddElement(group);
+
+            foreach (GraphElement selectedElement in selection)
+            {
+                if (!(selectedElement is DialogueSystemNode))
+                {
+                    continue;
+                }
+
+                DialogueSystemNode node = selectedElement as DialogueSystemNode;
+
+                group.AddElement(node);
+            }
+
             return group;
         }
         #endregion
@@ -120,8 +158,10 @@ namespace Mert.DialogueSystem.Windows
             deleteSelection = (operationName, askUser) =>
             {
                 Type groupType = typeof(DialogueSystemGroup);
+                Type edgeType = typeof(Edge);
 
                 List<DialogueSystemGroup> groupsToDelete = new List<DialogueSystemGroup>();
+                List<Edge> edgesToDelete = new List<Edge>();
                 List<DialogueSystemNode> nodesToDelete = new List<DialogueSystemNode>();
 
                 foreach (GraphElement element in selection)
@@ -133,6 +173,15 @@ namespace Mert.DialogueSystem.Windows
                         continue;
                     }
 
+                    if (element.GetType() == edgeType)
+                    {
+                        Edge edge = element as Edge;
+
+                        edgesToDelete.Add(edge);
+
+                        continue;
+                    }
+
                     if (element.GetType() != groupType)
                     {
                         continue;
@@ -140,15 +189,32 @@ namespace Mert.DialogueSystem.Windows
 
                     DialogueSystemGroup group = element as DialogueSystemGroup;
 
-                    RemoveGroup(group);
-
                     groupsToDelete.Add(group);
                 }
 
                 foreach (DialogueSystemGroup group in groupsToDelete)
                 {
+                    List<DialogueSystemNode> groupNodes = new List<DialogueSystemNode>();
+                    foreach (GraphElement groupElement in group.containedElements)
+                    {
+                        if (!(groupElement is DialogueSystemNode))
+                        {
+                            continue;
+                        }
+
+                        DialogueSystemNode groupNode = groupElement as DialogueSystemNode;
+
+                        groupNodes.Add(groupNode);
+                    }
+
+                    group.RemoveElements(groupNodes);
+
+                    RemoveGroup(group);
+
                     RemoveElement(group);
                 }
+
+                DeleteElements(edgesToDelete);
 
                 foreach (DialogueSystemNode node in nodesToDelete)
                 {
@@ -157,6 +223,8 @@ namespace Mert.DialogueSystem.Windows
                         node.Group.RemoveElement(node);
                     }
                     RemoveUngroupedNode(node);
+
+                    node.DisconnectAllPorts();
 
                     RemoveElement(node);
                 }
@@ -210,9 +278,11 @@ namespace Mert.DialogueSystem.Windows
             {
                 DialogueSystemGroup dialogueSystemGroup = group as DialogueSystemGroup;
 
+                dialogueSystemGroup.title = newTitle.RemoveWhitespaces().RemoveSpecialCharacters();
+
                 RemoveGroup(dialogueSystemGroup);
 
-                dialogueSystemGroup.oldTitle = newTitle;
+                dialogueSystemGroup.oldTitle = dialogueSystemGroup.title;
 
                 AddGroup(dialogueSystemGroup);
             };
@@ -222,7 +292,7 @@ namespace Mert.DialogueSystem.Windows
         #region Repeated Elements
         public void AddUngroupedNode(DialogueSystemNode node)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             if (!ungroupedNodes.ContainsKey(nodeName))
             {
@@ -245,13 +315,14 @@ namespace Mert.DialogueSystem.Windows
 
             if (ungroupedNodesList.Count == 2)
             {
+                ++RepeatedNamesAmout;
                 ungroupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
 
         public void RemoveUngroupedNode(DialogueSystemNode node)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             List<DialogueSystemNode> ungroupedNodesList = ungroupedNodes[nodeName].Nodes;
 
@@ -261,6 +332,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (ungroupedNodesList.Count == 1)
             {
+                --RepeatedNamesAmout;
                 ungroupedNodesList[0].ResetStyle();
 
                 return;
@@ -274,7 +346,7 @@ namespace Mert.DialogueSystem.Windows
 
         public void AddGroupedNode(DialogueSystemNode node, DialogueSystemGroup group)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             node.Group = group;
 
@@ -304,13 +376,14 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupedNodeList.Count == 2)
             {
+                ++RepeatedNamesAmout;
                 groupedNodeList[0].SetErrorStyle(errorColor);
             }
         }
 
         public void RemoveGroupedNode(DialogueSystemNode node, DialogueSystemGroup group)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             node.Group = null;
 
@@ -322,6 +395,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupedNodesList.Count == 1)
             {
+                --RepeatedNamesAmout;
                 groupedNodesList[0].ResetStyle();
 
                 return;
@@ -340,7 +414,7 @@ namespace Mert.DialogueSystem.Windows
 
         public void AddGroup(DialogueSystemGroup group)
         {
-            string groupName = group.title;
+            string groupName = group.title.ToLower();
 
             if (!groups.ContainsKey(groupName))
             {
@@ -363,13 +437,14 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupsList.Count == 2)
             {
+                ++RepeatedNamesAmout;
                 groupsList[0].SetErrorStyle(errorColor);
             }
         }
 
         public void RemoveGroup(DialogueSystemGroup group)
         {
-            string oldGroupName = group.oldTitle;
+            string oldGroupName = group.oldTitle.ToLower();
 
             List<DialogueSystemGroup> groupsList = groups[oldGroupName].Groups;
 
@@ -379,6 +454,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupsList.Count == 1)
             {
+                --RepeatedNamesAmout;
                 groupsList[0].ResetStyle();
 
                 return;
@@ -391,7 +467,7 @@ namespace Mert.DialogueSystem.Windows
         }
         #endregion
 
-        #region Element Insertion
+        #region Elements Insertion
         private void AddGridBackground()
         {
             GridBackground gridBackground = new GridBackground();
