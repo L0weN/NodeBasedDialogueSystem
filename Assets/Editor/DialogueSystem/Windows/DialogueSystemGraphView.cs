@@ -10,6 +10,7 @@ namespace Mert.DialogueSystem.Windows
     using Data.Error;
     using Elements;
     using Enumerations;
+    using Data.Save;
     using Utilities;
 
     public class DialogueSystemGraphView : GraphView
@@ -17,9 +18,9 @@ namespace Mert.DialogueSystem.Windows
         private DialogueSystemEditorWindow editorWindow;
         private DialogueSystemSearchWindow searchWindow;
 
-        private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
-        private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
-        private SerializableDictionary<Group, SerializableDictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        private SerializableDictionary<string, NodeErrorData> ungroupedNodes;
+        private SerializableDictionary<string, GroupErrorData> groups;
+        private SerializableDictionary<Group, SerializableDictionary<string, NodeErrorData>> groupedNodes;
 
         private int repeatedNamesAmount = 0;
 
@@ -49,9 +50,9 @@ namespace Mert.DialogueSystem.Windows
         {
             editorWindow = dialogueSystemEditorWindow;
 
-            ungroupedNodes = new SerializableDictionary<string, DialogueSystemNodeErrorData>();
-            groups = new SerializableDictionary<string, DialogueSystemGroupErrorData>();
-            groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, DialogueSystemNodeErrorData>>();
+            ungroupedNodes = new SerializableDictionary<string, NodeErrorData>();
+            groups = new SerializableDictionary<string, GroupErrorData>();
+            groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, NodeErrorData>>();
 
             AddManipulators();
             AddGridBackground();
@@ -61,6 +62,7 @@ namespace Mert.DialogueSystem.Windows
             OnGroupElementsAdded();
             OnGroupElementsRemoved();
             OnGroupRenamed();
+            OnGraphViewChanged();
 
             AddStyles();
         }
@@ -282,9 +284,47 @@ namespace Mert.DialogueSystem.Windows
 
                 RemoveGroup(dialogueSystemGroup);
 
-                dialogueSystemGroup.oldTitle = dialogueSystemGroup.title;
+                dialogueSystemGroup.OldTitle = dialogueSystemGroup.title;
 
                 AddGroup(dialogueSystemGroup);
+            };
+        }
+
+        private void OnGraphViewChanged()
+        {
+            graphViewChanged = (changes) =>
+            {
+                if (changes.edgesToCreate != null)
+                {
+                    foreach (Edge edge in changes.edgesToCreate)
+                    {
+                        DialogueSystemNode nextNode = edge.input.node as DialogueSystemNode;
+
+                        ChoiceSaveData choiceData = edge.output.userData as ChoiceSaveData;
+
+                        choiceData.NodeID = nextNode.ID;
+                    }
+                }
+
+                if (changes.elementsToRemove != null)
+                {
+                    Type edgeType = typeof(Edge);
+                    foreach (GraphElement element in changes.elementsToRemove)
+                    {
+                        if (element.GetType() != edgeType)
+                        {
+                            continue;
+                        }
+
+                        Edge edge = element as Edge;
+
+                        ChoiceSaveData choiceData = edge.output.userData as ChoiceSaveData;
+
+                        choiceData.NodeID = "";
+                    }
+                }
+
+                return changes;
             };
         }
         #endregion
@@ -296,7 +336,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (!ungroupedNodes.ContainsKey(nodeName))
             {
-                DialogueSystemNodeErrorData nodeErrorData = new DialogueSystemNodeErrorData();
+                NodeErrorData nodeErrorData = new NodeErrorData();
 
                 nodeErrorData.Nodes.Add(node);
 
@@ -352,12 +392,12 @@ namespace Mert.DialogueSystem.Windows
 
             if (!groupedNodes.ContainsKey(group))
             {
-                groupedNodes.Add(group, new SerializableDictionary<string, DialogueSystemNodeErrorData>());
+                groupedNodes.Add(group, new SerializableDictionary<string, NodeErrorData>());
             }
 
             if (!groupedNodes[group].ContainsKey(nodeName))
             {
-                DialogueSystemNodeErrorData nodeErrorData = new DialogueSystemNodeErrorData();
+                NodeErrorData nodeErrorData = new NodeErrorData();
 
                 nodeErrorData.Nodes.Add(node);
 
@@ -418,7 +458,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (!groups.ContainsKey(groupName))
             {
-                DialogueSystemGroupErrorData groupErrorData = new DialogueSystemGroupErrorData();
+                GroupErrorData groupErrorData = new GroupErrorData();
 
                 groupErrorData.Groups.Add(group);
 
@@ -444,7 +484,7 @@ namespace Mert.DialogueSystem.Windows
 
         public void RemoveGroup(DialogueSystemGroup group)
         {
-            string oldGroupName = group.oldTitle.ToLower();
+            string oldGroupName = group.OldTitle.ToLower();
 
             List<DialogueSystemGroup> groupsList = groups[oldGroupName].Groups;
 

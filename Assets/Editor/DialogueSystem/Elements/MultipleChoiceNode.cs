@@ -7,6 +7,7 @@ namespace Mert.DialogueSystem.Elements
     using Enumerations;
     using Utilities;
     using Windows;
+    using Data.Save;
     public class MultipleChoiceNode : DialogueSystemNode
     {
         public override void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
@@ -15,19 +16,28 @@ namespace Mert.DialogueSystem.Elements
 
             DialogueType = DialogueType.MultipleChoice;
 
-            Choices.Add("New Choice");
+            ChoiceSaveData choiceData = new ChoiceSaveData()
+            {
+                Text = "New Choice"
+            };
+
+            Choices.Add(choiceData);
         }
 
         public override void Draw()
         {
             base.Draw();
 
-            Button addChoiceButton = DialogueSystemElementUtility.CreateButton("Add Choice", () =>
+            Button addChoiceButton = ElementUtility.CreateButton("Add Choice", () =>
             {
-                Port choicePort = CreateChoicePort("New Choice");
+                ChoiceSaveData choiceData = new ChoiceSaveData()
+                {
+                    Text = "New Choice"
+                };
 
-                Choices.Add("New Choice");
-                
+                Choices.Add(choiceData);
+                Port choicePort = CreateChoicePort(choiceData);
+
                 outputContainer.Add(choicePort);
             });
 
@@ -35,7 +45,7 @@ namespace Mert.DialogueSystem.Elements
 
             mainContainer.Insert(1, addChoiceButton);
 
-            foreach (string choice in Choices)
+            foreach (ChoiceSaveData choice in Choices)
             {
                 Port choicePort = CreateChoicePort(choice);
                 outputContainer.Add(choicePort);
@@ -45,15 +55,34 @@ namespace Mert.DialogueSystem.Elements
         }
 
         #region Elements Creation
-        private Port CreateChoicePort(string choice)
+        private Port CreateChoicePort(object userData)
         {
             Port choicePort = this.CreatePort();
 
-            Button deleteChoiceButton = DialogueSystemElementUtility.CreateButton("X");
+            choicePort.userData = userData;
+
+            ChoiceSaveData choiceData = userData as ChoiceSaveData;
+
+            Button deleteChoiceButton = ElementUtility.CreateButton("X", () =>
+            {
+                if (Choices.Count == 1) return;
+
+                if (choicePort.connected)
+                {
+                    graphView.DeleteElements(choicePort.connections);
+                }
+
+                Choices.Remove(choiceData);
+
+                graphView.RemoveElement(choicePort);
+            });
 
             deleteChoiceButton.AddToClassList("ds-node__button");
 
-            TextField choiceTextField = DialogueSystemElementUtility.CreateTextField(choice);
+            TextField choiceTextField = ElementUtility.CreateTextField(choiceData.Text, null, callback =>
+            {
+                choiceData.Text = callback.newValue;
+            });
 
             choiceTextField.AddClasses(
                 "ds-node__text-field",

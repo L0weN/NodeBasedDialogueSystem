@@ -6,7 +6,7 @@ namespace Mert.DialogueSystem.Utilities
 {
     using Elements;
 
-    public static class DialogueSystemElementUtility
+    public static class ElementUtility
     {
         public static Button CreateButton(string text, Action onClick = null)
         {

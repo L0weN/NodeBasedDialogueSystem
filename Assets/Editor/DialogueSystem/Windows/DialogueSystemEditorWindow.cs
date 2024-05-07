@@ -37,12 +37,12 @@ namespace Mert.DialogueSystem.Windows
         {
             Toolbar toolbar = new Toolbar();
 
-            fileNameTextField = DialogueSystemElementUtility.CreateTextField(defaultFileName, "File Name:", callback =>
+            fileNameTextField = ElementUtility.CreateTextField(defaultFileName, "File Name:", callback =>
             {
                 fileNameTextField.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
             });
 
-            saveButton = DialogueSystemElementUtility.CreateButton("Save");
+            saveButton = ElementUtility.CreateButton("Save");
 
             toolbar.Add(fileNameTextField);
             toolbar.Add(saveButton);
@@ -54,7 +54,7 @@ namespace Mert.DialogueSystem.Windows
 
         private void AddStyles()
         {
-            rootVisualElement.AddStyleSheets("DialogueSystem/DialogueSystemVariables.uss");
+            rootVisualElement.AddStyleSheets("DialogueSystem/DialogueSystemVariablesSS.uss");
         }
         #endregion
 

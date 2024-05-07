@@ -3,14 +3,14 @@ using System.Collections.Generic;
 namespace Mert.DialogueSystem.Data.Error
 {
     using Elements;
-    public class DialogueSystemNodeErrorData
+    public class NodeErrorData
     {
-        public DialogueSystemErrorData ErrorData { get; set; }
+        public ErrorData ErrorData { get; set; }
         public List<DialogueSystemNode> Nodes { get; set; }
 
-        public DialogueSystemNodeErrorData()
+        public NodeErrorData()
         {
-            ErrorData = new DialogueSystemErrorData();
+            ErrorData = new ErrorData();
             Nodes = new List<DialogueSystemNode>();
         }
     }

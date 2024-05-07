@@ -2,11 +2,11 @@ using UnityEngine;
 
 namespace Mert.DialogueSystem.Data.Error
 {
-    public class DialogueSystemErrorData
+    public class ErrorData
     {
         public Color Color { get; set; }
 
-        public DialogueSystemErrorData()
+        public ErrorData()
         {
             GenerateRandomColor();
         }

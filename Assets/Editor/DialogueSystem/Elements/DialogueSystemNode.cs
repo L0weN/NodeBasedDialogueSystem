@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -8,23 +9,26 @@ namespace Mert.DialogueSystem.Elements
     using Enumerations;
     using Utilities;
     using Windows;
+    using Data.Save;
 
     public class DialogueSystemNode : Node
     {
+        public string ID { get; set; }
         public string DialogueName { get; set; }
-        public List<string> Choices { get; set; }
+        public List<ChoiceSaveData> Choices { get; set; }
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
         public DialogueSystemGroup Group { get; set; }
 
-        private DialogueSystemGraphView graphView;
+        protected DialogueSystemGraphView graphView;
 
         private Color defaultBackgroundcolor;
 
         public virtual void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
         {
+            ID = Guid.NewGuid().ToString();
             DialogueName = "DialogueName";
-            Choices = new List<string>();
+            Choices = new List<ChoiceSaveData>();
             Text = "Dialogue text.";
 
             graphView = dialogueSystemGraphView;
@@ -38,7 +42,7 @@ namespace Mert.DialogueSystem.Elements
         }
         public virtual void Draw()
         {
-            TextField dialogueNameTextField = DialogueSystemElementUtility.CreateTextField(DialogueName, null, callback =>
+            TextField dialogueNameTextField = ElementUtility.CreateTextField(DialogueName, null, callback =>
             {
                 TextField target = callback.target as TextField;
 
@@ -81,9 +85,9 @@ namespace Mert.DialogueSystem.Elements
 
             customDataContainer.AddToClassList("ds-node__custom-data-container");
 
-            Foldout textFoldout = DialogueSystemElementUtility.CreateFoldout("Dialogue Text");
+            Foldout textFoldout = ElementUtility.CreateFoldout("Dialogue Text");
 
-            TextField textTextField = DialogueSystemElementUtility.CreateTextArea(Text);
+            TextField textTextField = ElementUtility.CreateTextArea(Text);
 
             textTextField.AddClasses(
                 "ds-node__text-field",

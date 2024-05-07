@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Mert.DialogueSystem.Utilities
 {
-    public static class DialogueSystemStyleUtility 
+    public static class StyleUtility 
     {
         public static VisualElement AddClasses(this VisualElement element, params string[] classNames)
         {
