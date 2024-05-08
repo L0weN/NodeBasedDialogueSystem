@@ -12,6 +12,7 @@ namespace Mert.DialogueSystem.Windows
     using Enumerations;
     using Data.Save;
     using Utilities;
+    using static UnityEngine.GraphicsBuffer;
 
     public class DialogueSystemGraphView : GraphView
     {
@@ -22,24 +23,24 @@ namespace Mert.DialogueSystem.Windows
         private SerializableDictionary<string, GroupErrorData> groups;
         private SerializableDictionary<Group, SerializableDictionary<string, NodeErrorData>> groupedNodes;
 
-        private int repeatedNamesAmount = 0;
+        private int nameErrorsAmount = 0;
 
-        public int RepeatedNamesAmout
+        public int NameErrorsAmount
         {
             get
             {
-                return repeatedNamesAmount;
+                return nameErrorsAmount;
             }
             set
             {
-                repeatedNamesAmount = value;
+                nameErrorsAmount = value;
 
-                if (repeatedNamesAmount == 0)
+                if (nameErrorsAmount == 0)
                 {
                     editorWindow.EnableSaving();
                 }
 
-                if (repeatedNamesAmount == 1)
+                if (nameErrorsAmount == 1)
                 {
                     editorWindow.DisableSaving();
                 }
@@ -282,6 +283,21 @@ namespace Mert.DialogueSystem.Windows
 
                 dialogueSystemGroup.title = newTitle.RemoveWhitespaces().RemoveSpecialCharacters();
 
+                if (string.IsNullOrEmpty(dialogueSystemGroup.title))
+                {
+                    if (!string.IsNullOrEmpty(dialogueSystemGroup.OldTitle))
+                    {
+                        ++NameErrorsAmount;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(dialogueSystemGroup.OldTitle))
+                    {
+                        --NameErrorsAmount;
+                    }
+                }
+
                 RemoveGroup(dialogueSystemGroup);
 
                 dialogueSystemGroup.OldTitle = dialogueSystemGroup.title;
@@ -355,7 +371,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (ungroupedNodesList.Count == 2)
             {
-                ++RepeatedNamesAmout;
+                ++NameErrorsAmount;
                 ungroupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
@@ -372,7 +388,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (ungroupedNodesList.Count == 1)
             {
-                --RepeatedNamesAmout;
+                --NameErrorsAmount;
                 ungroupedNodesList[0].ResetStyle();
 
                 return;
@@ -416,7 +432,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupedNodeList.Count == 2)
             {
-                ++RepeatedNamesAmout;
+                ++NameErrorsAmount;
                 groupedNodeList[0].SetErrorStyle(errorColor);
             }
         }
@@ -435,7 +451,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupedNodesList.Count == 1)
             {
-                --RepeatedNamesAmout;
+                --NameErrorsAmount;
                 groupedNodesList[0].ResetStyle();
 
                 return;
@@ -477,7 +493,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupsList.Count == 2)
             {
-                ++RepeatedNamesAmout;
+                ++NameErrorsAmount;
                 groupsList[0].SetErrorStyle(errorColor);
             }
         }
@@ -494,7 +510,7 @@ namespace Mert.DialogueSystem.Windows
 
             if (groupsList.Count == 1)
             {
-                --RepeatedNamesAmout;
+                --NameErrorsAmount;
                 groupsList[0].ResetStyle();
 
                 return;

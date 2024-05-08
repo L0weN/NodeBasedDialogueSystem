@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -48,6 +49,21 @@ namespace Mert.DialogueSystem.Elements
 
                 target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
 
+                if (string.IsNullOrEmpty(target.value))
+                {
+                    if (!string.IsNullOrEmpty(DialogueName))
+                    {
+                        ++graphView.NameErrorsAmount;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(DialogueName))
+                    {
+                        --graphView.NameErrorsAmount;
+                    }
+                }
+
                 if (Group == null)
                 {
                     graphView.RemoveUngroupedNode(this);
@@ -87,7 +103,10 @@ namespace Mert.DialogueSystem.Elements
 
             Foldout textFoldout = ElementUtility.CreateFoldout("Dialogue Text");
 
-            TextField textTextField = ElementUtility.CreateTextArea(Text);
+            TextField textTextField = ElementUtility.CreateTextArea(Text, null, callback =>
+            {
+                Text = callback.newValue;
+            });
 
             textTextField.AddClasses(
                 "ds-node__text-field",
@@ -135,6 +154,13 @@ namespace Mert.DialogueSystem.Elements
                 }
                 graphView.DeleteElements(port.connections);
             }
+        }
+
+        public bool IsStartingNode()
+        {
+            Port inputPort = inputContainer.Children().First() as Port;
+
+            return !inputPort.connected;
         }
 
         public void SetErrorStyle(Color color)

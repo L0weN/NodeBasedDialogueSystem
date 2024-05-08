@@ -4,9 +4,11 @@ using UnityEditor.UIElements;
 
 namespace Mert.DialogueSystem.Windows
 {
+    using System;
     using Utilities;
     public class DialogueSystemEditorWindow : EditorWindow
     {
+        private DialogueSystemGraphView graphView;
         private readonly string defaultFileName = "DialoguesFileName";
         private TextField fileNameTextField;
         private Button saveButton;
@@ -28,7 +30,7 @@ namespace Mert.DialogueSystem.Windows
         #region Elements Insertion
         private void AddGraphView()
         {
-            DialogueSystemGraphView graphView = new DialogueSystemGraphView(this);
+            graphView = new DialogueSystemGraphView(this);
             graphView.StretchToParentSize();
             rootVisualElement.Add(graphView);
         }
@@ -42,7 +44,7 @@ namespace Mert.DialogueSystem.Windows
                 fileNameTextField.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
             });
 
-            saveButton = ElementUtility.CreateButton("Save");
+            saveButton = ElementUtility.CreateButton("Save", () => Save());
 
             toolbar.Add(fileNameTextField);
             toolbar.Add(saveButton);
@@ -55,6 +57,23 @@ namespace Mert.DialogueSystem.Windows
         private void AddStyles()
         {
             rootVisualElement.AddStyleSheets("DialogueSystem/DialogueSystemVariablesSS.uss");
+        }
+        #endregion
+
+        #region Toolbar Actions
+        private void Save()
+        {
+            if (string.IsNullOrEmpty(fileNameTextField.value))
+            {
+                EditorUtility.DisplayDialog(
+                    "Invalid File Name",
+                    "Please enter a valid file name.",
+                    "OK"
+                );
+            }
+
+            IOUtility.Initialize(graphView, fileNameTextField.value);
+            IOUtility.Save();
         }
         #endregion
 
