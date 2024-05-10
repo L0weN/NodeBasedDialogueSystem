@@ -54,13 +54,13 @@ namespace Mert.DialogueSystem.Windows
             {
                 case DialogueType.SingleChoice:
                     {
-                        SingleChoiceNode singleChoiceNode = graphView.CreateNode(DialogueType.SingleChoice, localMousePosition) as SingleChoiceNode;
+                        SingleChoiceNode singleChoiceNode = graphView.CreateNode("DialogueName", DialogueType.SingleChoice, localMousePosition) as SingleChoiceNode;
                         graphView.AddElement(singleChoiceNode);
                         return true;
                     }
                 case DialogueType.MultipleChoice:
                     {
-                        MultipleChoiceNode multipleChoiceNode = graphView.CreateNode(DialogueType.MultipleChoice, localMousePosition) as MultipleChoiceNode;
+                        MultipleChoiceNode multipleChoiceNode = graphView.CreateNode("DialogueName", DialogueType.MultipleChoice, localMousePosition) as MultipleChoiceNode;
                         graphView.AddElement(multipleChoiceNode);
                         return true;
                     }

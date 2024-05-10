@@ -10,9 +10,9 @@ namespace Mert.DialogueSystem.Elements
     using Data.Save;
     public class MultipleChoiceNode : DialogueSystemNode
     {
-        public override void Initialize(DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
+        public override void Initialize(string nodeName, DialogueSystemGraphView dialogueSystemGraphView, Vector2 position)
         {
-            base.Initialize(dialogueSystemGraphView, position);
+            base.Initialize(nodeName, dialogueSystemGraphView, position);
 
             DialogueType = DialogueType.MultipleChoice;
 

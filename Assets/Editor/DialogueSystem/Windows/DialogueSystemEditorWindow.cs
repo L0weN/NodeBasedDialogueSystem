@@ -10,7 +10,7 @@ namespace Mert.DialogueSystem.Windows
     {
         private DialogueSystemGraphView graphView;
         private readonly string defaultFileName = "DialoguesFileName";
-        private TextField fileNameTextField;
+        private static TextField fileNameTextField;
         private Button saveButton;
 
         [MenuItem("Window/DialogueSystem/Dialogue Graph")]
@@ -46,8 +46,13 @@ namespace Mert.DialogueSystem.Windows
 
             saveButton = ElementUtility.CreateButton("Save", () => Save());
 
+            Button clearButton = ElementUtility.CreateButton("Clear", () => Clear());
+            Button resetButton = ElementUtility.CreateButton("Reset", () => Reset());
+
             toolbar.Add(fileNameTextField);
             toolbar.Add(saveButton);
+            toolbar.Add(clearButton);
+            toolbar.Add(resetButton);
 
             toolbar.AddStyleSheets("DialogueSystem/DialogueSystemToolbarSS.uss");
 
@@ -75,9 +80,26 @@ namespace Mert.DialogueSystem.Windows
             IOUtility.Initialize(graphView, fileNameTextField.value);
             IOUtility.Save();
         }
+
+        private void Clear()
+        {
+            graphView.ClearGraph();
+        }
+
+        private void Reset()
+        {
+            Clear();
+
+            UpdateFileName(defaultFileName);
+        }
         #endregion
 
         #region Utility Methods
+        public static void UpdateFileName(string newFileName)
+        {
+            fileNameTextField.value = newFileName;
+        }
+
         public void EnableSaving()
         {
             saveButton.SetEnabled(true);

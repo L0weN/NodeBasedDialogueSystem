@@ -11,6 +11,7 @@ namespace Mert.DialogueSystem.Utilities
     using Data.Save;
     using ScriptableObjects;
     using Data;
+    using System.IO;
 
     public static class IOUtility
     {
@@ -25,6 +26,8 @@ namespace Mert.DialogueSystem.Utilities
         private static Dictionary<string, DialogueGroupSO> createdDialogueGroups;
         private static Dictionary<string, DialogueSO> createdDialogues;
 
+        private static Dictionary<string, DialogueSystemGroup> loadedGroups;
+
         public static void Initialize(DialogueSystemGraphView dialogueSystemGraphView, string graphName)
         {
             graphView = dialogueSystemGraphView;
@@ -37,6 +40,8 @@ namespace Mert.DialogueSystem.Utilities
 
             createdDialogueGroups = new Dictionary<string, DialogueGroupSO>();
             createdDialogues = new Dictionary<string, DialogueSO>();
+
+            loadedGroups = new Dictionary<string, DialogueSystemGroup>();
         }
 
         #region Save Methods
@@ -286,6 +291,47 @@ namespace Mert.DialogueSystem.Utilities
 
         #endregion
 
+        #region Load Methods
+        public static void Load()
+        {
+            GraphSaveDataSO graphData = LoadAsset<GraphSaveDataSO>("Assets/Editor/DialogueSystem/Graphs", graphFileName);
+
+            if (graphData == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "Graph Not Found",
+                    "The graph you are trying to load does not exist.",
+                    "OK"
+                );
+                return;
+            }
+
+            DialogueSystemEditorWindow.UpdateFileName(graphData.FileName);
+            LoadGroups(graphData.Groups);
+            LoadNodes(graphData.Nodes);
+        }
+
+        private static void LoadNodes(List<NodeSaveData> nodes)
+        {
+            foreach (NodeSaveData nodeData in nodes)
+            {
+                DialogueSystemNode node = graphView.CreateNode("DialogueName", nodeData.DialogueType, nodeData.Position);
+            }
+        }
+
+        private static void LoadGroups(List<GroupSaveData> groups)
+        {
+            foreach (GroupSaveData groupData in groups)
+            {
+                DialogueSystemGroup group = graphView.CreateGroup(groupData.Name, groupData.Position);
+
+                group.ID = groupData.ID;
+
+                loadedGroups.Add(group.ID, group);
+            }
+        }
+        #endregion
+
         #region Creation Methods
         private static void CreateStaticFolders()
         {
@@ -339,7 +385,7 @@ namespace Mert.DialogueSystem.Utilities
         {
             string fullPath = $"{path}/{assetName}.asset";
 
-            T asset = AssetDatabase.LoadAssetAtPath<T>(fullPath);
+            T asset = LoadAsset<T>(path, assetName);
 
             if (asset == null)
             {
@@ -349,6 +395,12 @@ namespace Mert.DialogueSystem.Utilities
             }
 
             return asset;
+        }
+
+        private static T LoadAsset<T>(string path, string assetName) where T : ScriptableObject
+        {
+            string fullPath = $"{path}/{assetName}.asset";
+            return AssetDatabase.LoadAssetAtPath<T>(fullPath);
         }
 
         private static void SaveAsset(UnityEngine.Object asset)

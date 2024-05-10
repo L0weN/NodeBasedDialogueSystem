@@ -109,7 +109,7 @@ namespace Mert.DialogueSystem.Windows
         private IManipulator CreateNodeContextualMenu(string actionTitle, DialogueType dialogueType)
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator(
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, menuActionEvent => AddElement(CreateNode(dialogueType, GetLocalMousePosition(menuActionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, menuActionEvent => AddElement(CreateNode("DialogueName", dialogueType, GetLocalMousePosition(menuActionEvent.eventInfo.localMousePosition))))
                 );
 
             return contextualMenuManipulator;
@@ -117,15 +117,19 @@ namespace Mert.DialogueSystem.Windows
         #endregion
         
         #region Elements Creation
-        public DialogueSystemNode CreateNode(DialogueType dialogueType, Vector2 position)
+        public DialogueSystemNode CreateNode(string nodeName, DialogueType dialogueType, Vector2 position, bool shouldDraw = true)
         {
             Type nodeType = Type.GetType($"Mert.DialogueSystem.Elements.{dialogueType}Node");
 
             DialogueSystemNode node = Activator.CreateInstance(nodeType) as DialogueSystemNode;
 
-            node.Initialize(this, position);
-            node.Draw();
+            node.Initialize(nodeName, this, position);
 
+            if (shouldDraw)
+            {
+                node.Draw();
+            }
+            
             AddUngroupedNode(node);
 
             return node;
@@ -565,6 +569,17 @@ namespace Mert.DialogueSystem.Windows
             Vector2 localMousePosition = contentViewContainer.WorldToLocal(worldMousePosition);
 
             return localMousePosition;
+        }
+
+        public void ClearGraph()
+        {
+            graphElements.ForEach(graphElement => RemoveElement(graphElement));
+
+            groups.Clear();
+            groupedNodes.Clear();
+            ungroupedNodes.Clear();
+
+            NameErrorsAmount = 0;
         }
         #endregion
     }
