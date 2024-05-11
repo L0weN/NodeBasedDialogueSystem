@@ -409,7 +409,7 @@ namespace Mert.DialogueSystem.Utilities
         #endregion
 
         #region Utility Methods
-        private static List<ChoiceSaveData> CloneNodeChoices(List<ChoiceSaveData> nodeChoices)
+        public static List<ChoiceSaveData> CloneNodeChoices(List<ChoiceSaveData> nodeChoices)
         {
             List<ChoiceSaveData> choices = new List<ChoiceSaveData>();
 
@@ -427,7 +427,7 @@ namespace Mert.DialogueSystem.Utilities
             return choices;
         }
 
-        private static void CreateFolder(string path, string folderName)
+        public static void CreateFolder(string path, string folderName)
         {
             if (AssetDatabase.IsValidFolder($"{path}/{folderName}"))
             {
@@ -437,7 +437,7 @@ namespace Mert.DialogueSystem.Utilities
             AssetDatabase.CreateFolder(path, folderName);
         }
 
-        private static T CreateAsset<T>(string path, string assetName) where T : ScriptableObject
+        public static T CreateAsset<T>(string path, string assetName) where T : ScriptableObject
         {
             string fullPath = $"{path}/{assetName}.asset";
 
@@ -453,13 +453,13 @@ namespace Mert.DialogueSystem.Utilities
             return asset;
         }
 
-        private static T LoadAsset<T>(string path, string assetName) where T : ScriptableObject
+        public static T LoadAsset<T>(string path, string assetName) where T : ScriptableObject
         {
             string fullPath = $"{path}/{assetName}.asset";
             return AssetDatabase.LoadAssetAtPath<T>(fullPath);
         }
 
-        private static void SaveAsset(UnityEngine.Object asset)
+        public static void SaveAsset(UnityEngine.Object asset)
         {
             EditorUtility.SetDirty(asset);
 
@@ -467,13 +467,13 @@ namespace Mert.DialogueSystem.Utilities
             AssetDatabase.Refresh();
         }
 
-        private static void RemoveFolder(string fullPath)
+        public static void RemoveFolder(string fullPath)
         {
             FileUtil.DeleteFileOrDirectory($"{fullPath}.meta");
             FileUtil.DeleteFileOrDirectory($"{fullPath}/");
         }
 
-        private static void RemoveAsset(string path, string assetName)
+        public static void RemoveAsset(string path, string assetName)
         {
             AssetDatabase.DeleteAsset($"{path}/{assetName}.asset");
         }
