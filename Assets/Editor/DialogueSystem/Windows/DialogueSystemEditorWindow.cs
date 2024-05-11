@@ -1,10 +1,10 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using System.IO;
 
 namespace Mert.DialogueSystem.Windows
 {
-    using System;
     using Utilities;
     public class DialogueSystemEditorWindow : EditorWindow
     {
@@ -12,6 +12,7 @@ namespace Mert.DialogueSystem.Windows
         private readonly string defaultFileName = "DialoguesFileName";
         private static TextField fileNameTextField;
         private Button saveButton;
+        private Button miniMapButton;
 
         [MenuItem("Window/DialogueSystem/Dialogue Graph")]
         public static void Open()
@@ -46,13 +47,18 @@ namespace Mert.DialogueSystem.Windows
 
             saveButton = ElementUtility.CreateButton("Save", () => Save());
 
+            Button loadButton = ElementUtility.CreateButton("Load", () => Load());
             Button clearButton = ElementUtility.CreateButton("Clear", () => Clear());
             Button resetButton = ElementUtility.CreateButton("Reset", () => Reset());
 
+            miniMapButton = ElementUtility.CreateButton("Minimap", () => ToggleMiniMap());
+
             toolbar.Add(fileNameTextField);
             toolbar.Add(saveButton);
+            toolbar.Add(loadButton);
             toolbar.Add(clearButton);
             toolbar.Add(resetButton);
+            toolbar.Add(miniMapButton);
 
             toolbar.AddStyleSheets("DialogueSystem/DialogueSystemToolbarSS.uss");
 
@@ -81,6 +87,21 @@ namespace Mert.DialogueSystem.Windows
             IOUtility.Save();
         }
 
+        private void Load()
+        {
+            string filePath = EditorUtility.OpenFilePanel("Dialogue Graphs", "Assets/Editor/DialogueSystem/Graphs", "asset");
+
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return;
+            }
+
+            Clear();
+
+            IOUtility.Initialize(graphView, Path.GetFileNameWithoutExtension(filePath));
+            IOUtility.Load();
+        }
+
         private void Clear()
         {
             graphView.ClearGraph();
@@ -91,6 +112,13 @@ namespace Mert.DialogueSystem.Windows
             Clear();
 
             UpdateFileName(defaultFileName);
+        }
+
+        private void ToggleMiniMap()
+        {
+            graphView.ToggleMiniMap();
+
+            miniMapButton.ToggleInClassList("ds-toolbar__button__selected");
         }
         #endregion
 

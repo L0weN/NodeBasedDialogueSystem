@@ -11,7 +11,7 @@ namespace Mert.DialogueSystem.Utilities
     using Data.Save;
     using ScriptableObjects;
     using Data;
-    using System.IO;
+    using UnityEditor.Experimental.GraphView;
 
     public static class IOUtility
     {
@@ -27,6 +27,7 @@ namespace Mert.DialogueSystem.Utilities
         private static Dictionary<string, DialogueSO> createdDialogues;
 
         private static Dictionary<string, DialogueSystemGroup> loadedGroups;
+        private static Dictionary<string, DialogueSystemNode> loadedNodes;
 
         public static void Initialize(DialogueSystemGraphView dialogueSystemGraphView, string graphName)
         {
@@ -42,6 +43,7 @@ namespace Mert.DialogueSystem.Utilities
             createdDialogues = new Dictionary<string, DialogueSO>();
 
             loadedGroups = new Dictionary<string, DialogueSystemGroup>();
+            loadedNodes = new Dictionary<string, DialogueSystemNode>();
         }
 
         #region Save Methods
@@ -261,18 +263,7 @@ namespace Mert.DialogueSystem.Utilities
 
         private static void SaveNodeToGraph(DialogueSystemNode node, GraphSaveDataSO graphData)
         {
-            List<ChoiceSaveData> choices = new List<ChoiceSaveData>();
-
-            foreach (ChoiceSaveData choice in node.Choices)
-            {
-                ChoiceSaveData choiceData = new ChoiceSaveData()
-                {
-                    Text = choice.Text,
-                    NodeID = choice.NodeID
-                };
-
-                choices.Add(choiceData);
-            }
+            List<ChoiceSaveData> choices = CloneNodeChoices(node.Choices);
 
             NodeSaveData nodeData = new NodeSaveData()
             {
@@ -309,13 +300,60 @@ namespace Mert.DialogueSystem.Utilities
             DialogueSystemEditorWindow.UpdateFileName(graphData.FileName);
             LoadGroups(graphData.Groups);
             LoadNodes(graphData.Nodes);
+            LoadNodesConnections();
+        }
+
+        private static void LoadNodesConnections()
+        {
+            foreach (KeyValuePair<string, DialogueSystemNode> loadedNode in loadedNodes)
+            {
+                foreach (Port choicePort in loadedNode.Value.outputContainer.Children())
+                {
+                    ChoiceSaveData choiceData = choicePort.userData as ChoiceSaveData;
+
+                    if (string.IsNullOrEmpty(choiceData.NodeID))
+                    {
+                        continue;
+                    }
+
+                    DialogueSystemNode nextNode = loadedNodes[choiceData.NodeID];
+
+                    Port nextNodeInputPort = nextNode.inputContainer.Children().First() as Port;
+
+                    Edge edge = choicePort.ConnectTo(nextNodeInputPort);
+
+                    graphView.AddElement(edge);
+
+                    loadedNode.Value.RefreshPorts();
+                }
+            }
         }
 
         private static void LoadNodes(List<NodeSaveData> nodes)
         {
             foreach (NodeSaveData nodeData in nodes)
             {
-                DialogueSystemNode node = graphView.CreateNode("DialogueName", nodeData.DialogueType, nodeData.Position);
+                List<ChoiceSaveData> choices = CloneNodeChoices(nodeData.Choices);
+                DialogueSystemNode node = graphView.CreateNode("DialogueName", nodeData.DialogueType, nodeData.Position, false);
+
+                node.ID = nodeData.ID;
+                node.Choices = choices;
+                node.Text = nodeData.Text;
+
+                node.Draw();
+
+                graphView.AddElement(node);
+
+                loadedNodes.Add(node.ID, node);
+
+                if (string.IsNullOrEmpty(nodeData.GroupID))
+                {
+                    continue;
+                }
+
+                DialogueSystemGroup group = loadedGroups[nodeData.GroupID];
+                node.Group = group;
+                group.AddElement(node);
             }
         }
 
@@ -371,6 +409,24 @@ namespace Mert.DialogueSystem.Utilities
         #endregion
 
         #region Utility Methods
+        private static List<ChoiceSaveData> CloneNodeChoices(List<ChoiceSaveData> nodeChoices)
+        {
+            List<ChoiceSaveData> choices = new List<ChoiceSaveData>();
+
+            foreach (ChoiceSaveData choice in nodeChoices)
+            {
+                ChoiceSaveData choiceData = new ChoiceSaveData()
+                {
+                    Text = choice.Text,
+                    NodeID = choice.NodeID
+                };
+
+                choices.Add(choiceData);
+            }
+
+            return choices;
+        }
+
         private static void CreateFolder(string path, string folderName)
         {
             if (AssetDatabase.IsValidFolder($"{path}/{folderName}"))

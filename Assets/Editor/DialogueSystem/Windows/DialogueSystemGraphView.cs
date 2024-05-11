@@ -12,12 +12,13 @@ namespace Mert.DialogueSystem.Windows
     using Enumerations;
     using Data.Save;
     using Utilities;
-    using static UnityEngine.GraphicsBuffer;
 
     public class DialogueSystemGraphView : GraphView
     {
         private DialogueSystemEditorWindow editorWindow;
         private DialogueSystemSearchWindow searchWindow;
+
+        private MiniMap miniMap;
 
         private SerializableDictionary<string, NodeErrorData> ungroupedNodes;
         private SerializableDictionary<string, GroupErrorData> groups;
@@ -57,6 +58,7 @@ namespace Mert.DialogueSystem.Windows
 
             AddManipulators();
             AddGridBackground();
+            AddMiniMap();
             AddSearchWindow();
 
             OnElementsDeleted();
@@ -66,6 +68,7 @@ namespace Mert.DialogueSystem.Windows
             OnGraphViewChanged();
 
             AddStyles();
+            AddMiniMapStyles();
         }
 
         #region Override Methods
@@ -547,12 +550,34 @@ namespace Mert.DialogueSystem.Windows
             nodeCreationRequest = context => SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), searchWindow);
         }
 
+        private void AddMiniMap()
+        {
+            miniMap = new MiniMap { anchored = true };
+
+            miniMap.SetPosition(new Rect(15, 50, 200, 180));
+            Add(miniMap);
+
+            miniMap.visible = false;
+        }
+
         private void AddStyles()
         {
             this.AddStyleSheets(
                 "DialogueSystem/DialogueSystemGraphViewSS.uss",
                 "DialogueSystem/DialogueSystemNodeSS.uss"
                 );
+        }
+
+        private void AddMiniMapStyles()
+        {
+            StyleColor backgroundColor = new StyleColor(new Color32(29, 29, 30, 255));
+            StyleColor borderColor = new StyleColor(new Color32(51, 51, 51, 255));
+
+            miniMap.style.backgroundColor = backgroundColor;
+            miniMap.style.borderTopColor = borderColor;
+            miniMap.style.borderRightColor = borderColor;
+            miniMap.style.borderBottomColor = borderColor;
+            miniMap.style.borderLeftColor = borderColor;
         }
         #endregion
 
@@ -580,6 +605,11 @@ namespace Mert.DialogueSystem.Windows
             ungroupedNodes.Clear();
 
             NameErrorsAmount = 0;
+        }
+
+        public void ToggleMiniMap()
+        {
+            miniMap.visible = !miniMap.visible;
         }
         #endregion
     }
