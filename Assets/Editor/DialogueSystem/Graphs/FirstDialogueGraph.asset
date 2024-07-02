@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2fa00f96fd3f5047a48aef4044754d4, type: 3}
+  m_Name: FirstDialogueGraph
+  m_EditorClassIdentifier: 
+  FileName: FirstDialogue
+  <Groups>k__BackingField:
+  - <ID>k__BackingField: 61ca5681-ff9e-4c5b-9815-829bfe9ab69a
+    <Name>k__BackingField: first
+    <Position>k__BackingField: {x: 267.00003, y: 52.999996}
+  - <ID>k__BackingField: 10495659-44e6-4547-84cb-490c91ca21c3
+    <Name>k__BackingField: second
+    <Position>k__BackingField: {x: 990, y: -32}
+  <Nodes>k__BackingField:
+  - <ID>k__BackingField: e2a7279c-509c-4a0a-90f2-90e37ae0c5b7
+    <Name>k__BackingField: c
+    <Text>k__BackingField: First End
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 10495659-44e6-4547-84cb-490c91ca21c3
+    <DialogueType>k__BackingField: 0
+    <Position>k__BackingField: {x: 1087, y: 27}
+  - <ID>k__BackingField: c106601d-ca3c-4a8f-a4bd-9aff1ebd9e9d
+    <Name>k__BackingField: d
+    <Text>k__BackingField: Second End
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 10495659-44e6-4547-84cb-490c91ca21c3
+    <DialogueType>k__BackingField: 0
+    <Position>k__BackingField: {x: 1142, y: 302}
+  - <ID>k__BackingField: 3eb8636b-2fb2-458d-afb5-47cae8f49fa2
+    <Name>k__BackingField: a
+    <Text>k__BackingField: Hello Mert!
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: ee60b754-897b-48cc-8fe5-cecfca2862d8
+    <GroupID>k__BackingField: 61ca5681-ff9e-4c5b-9815-829bfe9ab69a
+    <DialogueType>k__BackingField: 0
+    <Position>k__BackingField: {x: 292, y: 112}
+  - <ID>k__BackingField: ee60b754-897b-48cc-8fe5-cecfca2862d8
+    <Name>k__BackingField: b
+    <Text>k__BackingField: You choose first dialogue
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: e2a7279c-509c-4a0a-90f2-90e37ae0c5b7
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: c106601d-ca3c-4a8f-a4bd-9aff1ebd9e9d
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: aad09506-e7b1-4fc5-ae5f-8c4247cd77f9
+    <GroupID>k__BackingField: 61ca5681-ff9e-4c5b-9815-829bfe9ab69a
+    <DialogueType>k__BackingField: 1
+    <Position>k__BackingField: {x: 309, y: 304}
+  - <ID>k__BackingField: aad09506-e7b1-4fc5-ae5f-8c4247cd77f9
+    <Name>k__BackingField: e
+    <Text>k__BackingField: Third End
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 10495659-44e6-4547-84cb-490c91ca21c3
+    <DialogueType>k__BackingField: 0
+    <Position>k__BackingField: {x: 1015, y: 519}
+  <OldGroupNames>k__BackingField:
+  - first
+  - second
+  <OldUngroupedNodeNames>k__BackingField: []
+  <OldGroupedNodeNames>k__BackingField:
+    list:
+    - Key: second
+      Value:
+      - c
+      - d
+      - e
+    - Key: first
+      Value:
+      - a
+      - b

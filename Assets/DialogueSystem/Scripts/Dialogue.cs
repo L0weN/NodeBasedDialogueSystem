@@ -3,6 +3,8 @@ using UnityEngine;
 namespace Mert.DialogueSystem
 {
     using ScriptableObjects;
+    using TMPro;
+
     public class Dialogue : MonoBehaviour
     {
         [SerializeField] private DialogueContainerSO dialogueContainer;
@@ -14,5 +16,13 @@ namespace Mert.DialogueSystem
 
         [SerializeField] private int selectedDialogueGroupIndex;
         [SerializeField] private int selectedDialogueIndex;
+
+        [SerializeField] private TextMeshProUGUI dialogueText;
+
+        private void Start()
+        {
+            Debug.Log(dialogue.Text);
+            dialogueText.text = dialogue.Text;
+        }
     }
 }

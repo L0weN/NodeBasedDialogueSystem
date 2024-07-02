@@ -18,6 +18,8 @@ namespace Mert.DialogueSystem.Inspectors
         private SerializedProperty selectedDialogueGroupIndexProperty;
         private SerializedProperty selectedDialogueIndexProperty;
 
+        private SerializedProperty dialogueTextProperty;
+
         private void OnEnable()
         {
             dialogueContainerProperty = serializedObject.FindProperty("dialogueContainer");
@@ -29,6 +31,8 @@ namespace Mert.DialogueSystem.Inspectors
 
             selectedDialogueGroupIndexProperty = serializedObject.FindProperty("selectedDialogueGroupIndex");
             selectedDialogueIndexProperty = serializedObject.FindProperty("selectedDialogueIndex");
+
+            dialogueTextProperty = serializedObject.FindProperty("dialogueText");
         }
 
         public override void OnInspectorGUI()
@@ -91,6 +95,8 @@ namespace Mert.DialogueSystem.Inspectors
             }
 
             DrawDialogueArea(dialogueNames, dialogueFolderPath);
+
+            DrawDialogueText();
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -163,6 +169,15 @@ namespace Mert.DialogueSystem.Inspectors
             dialogueProperty.objectReferenceValue = selectedDialogue;
 
             InspectorUtility.DrawDisabledFields(() => dialogueProperty.DrawPropertyField());
+
+            InspectorUtility.DrawSpace();
+        }
+
+        private void DrawDialogueText()
+        {
+            InspectorUtility.DrawHeader("Dialogue Text");
+
+            dialogueTextProperty.DrawPropertyField();
         }
 
         private void StopDrawing(string reason, MessageType messageType = MessageType.Info)

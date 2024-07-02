@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dbd47f681dcbc643a5db018d671ee22, type: 3}
+  m_Name: FirstDialogue
+  m_EditorClassIdentifier: 
+  <FileName>k__BackingField: FirstDialogue
+  <DialogueGroups>k__BackingField:
+    list:
+    - Key: {fileID: 11400000, guid: d512983972a8ec448a4694fbeb13aa97, type: 2}
+      Value:
+      - {fileID: 11400000, guid: 7f4f73f729848ce4293f8105f3584ea3, type: 2}
+      - {fileID: 11400000, guid: 0923b3c9b14def74b81d6cc05ec0a4a8, type: 2}
+    - Key: {fileID: 11400000, guid: 84d688f351d9ee74699ea898c8727551, type: 2}
+      Value:
+      - {fileID: 11400000, guid: 984bd6a17127ad94998b792ea331e8de, type: 2}
+      - {fileID: 11400000, guid: 907c8688b8e639f4c80867f3d473418d, type: 2}
+      - {fileID: 11400000, guid: 62254ee4faee510409e1cffcc334fbff, type: 2}
+  <UngroupedDialogues>k__BackingField: []
